@@ -1,13 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SUBIEKT_RUNNER
@@ -17,22 +10,21 @@ namespace SUBIEKT_RUNNER
         public frmMain()
         {
             InitializeComponent();
+
+            // pobiera aktualną wartość daty i czasu systemowego
+            // ustawia datePicer.Value
+
+            datePicker.Value = DateTime.Now;
         }
 
-        struct SYSTEMTIME
+        private struct SYSTEMTIME
         {
-            internal short wYear;
-            internal short wMonth;
-            internal short wDayOfWeek;
-            internal short wDay;
-            internal short wHour;
-            internal short wMinute;
-            internal short wSecond;
-            internal short wMilliseconds;
+            internal short wYear, wMonth, wDayOfWeek, wDay, wHour, wMinute, wSecond, wMilliseconds;
         }
 
         [System.Runtime.InteropServices.DllImport("kernel32", SetLastError = true)]
         private static extern bool GetSystemTime(out SYSTEMTIME systemTime);
+
         [System.Runtime.InteropServices.DllImport("kernel32", SetLastError = true)]
         private static extern bool SetSystemTime(ref SYSTEMTIME systemTime);
 
@@ -40,13 +32,15 @@ namespace SUBIEKT_RUNNER
         private void ChangneSystemDate(DateTime date)
         {
             SYSTEMTIME st = new SYSTEMTIME();
-            st.wHour = (short)date.Hour;
+            st.wHour = (short)(date.Hour - 1 % 24); // UTO time to LOCAL ???
             st.wMinute = (short)date.Minute;
             st.wSecond = (short)date.Second;
             st.wMilliseconds = (short)date.Millisecond;
             st.wDay = (short)date.Day;
             st.wMonth = (short)date.Month;
             st.wYear = (short)date.Year;
+           
+            // ustaw czas systemowy
 
             SetSystemTime(ref st);
         }
@@ -83,12 +77,8 @@ namespace SUBIEKT_RUNNER
 
         private void btnSet_Click(object sender, EventArgs e)
         {
-            // zmiana daty na inną
-            datePicker.Value = DateTime.Now;
-            _ = MessageBox.Show(datePicker.Value.ToString());
-
-            //ChangneSystemDate(datePicker.Value);
+            // zmiana daty systemowej -- sprawdz!!!
+            ChangneSystemDate(datePicker.Value);
         }
-
     }
 }
